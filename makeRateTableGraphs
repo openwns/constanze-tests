@@ -1,0 +1,103 @@
+#!/usr/bin/perl
+#
+# makeRateTableGraphs
+#
+
+#chop($filelist = `ls ./vector* | grep -v table`);
+#@files = split(/\s+/,$filelist);
+
+$graphsFileDir = "graphs.junk"; # see constanzeTestsGlue.py
+if (! -d $graphsFileDir) {
+  mkdir($graphsFileDir,0755);
+}
+$tablefilename = "$graphsFileDir/rate_output.raw";
+# this command reads the probe file and produces the raw table:
+system("./output_rate_table > $tablefilename");
+@files = ($tablefilename);
+
+$gnuplotfile="rate_output.gnuplot";
+open(GNUPLOTFILE,">$graphsFileDir/$gnuplotfile");
+print GNUPLOTFILE <<HIER;
+
+# gnuplot script to display vectors as graphic.
+# to start, run gnuplot, then in gnuplot, type: 'load "$gnuplotfile"'
+#set term postscript;set output "${gnuplotfile}.ps"
+set autoscale x;set autoscale y     #set various things to default.
+set xtics;set ytics;set nokey;set nolabel
+set nologscale y;set nologscale x
+set grid;set nolabel
+set title ""
+# 			hier anpassen:
+#set xrange [0:10]
+#set yrange [0:1]
+#set key 0.5,0.5
+#set logscale y
+set xlabel ""
+set ylabel ""
+
+HIER
+
+foreach $file (@files) {
+  #$fileout = "${file}.table";
+  $fileout = "${file}";
+  $fileout =~ s/raw/table/;
+  open(VECTORFILE,"$file");
+  @statresult = stat(VECTORFILE);
+  $filesize = $statresult[7];
+  #print "vector file = \"$file\", size=$filesize\n";
+  if ($filesize >= 100) { # relevant contents
+    open(VECTORFILEOUT,">$fileout");
+    $xlabel="t"; $ylabel="r(t)";
+    $squarewave=0; $lastvalue=0.0;
+    print GNUPLOTFILE "set title \"file=$file\"\n";
+    while($line = <VECTORFILE>) {
+      chop($line);
+      if ($line =~ /Abscissa:/) {
+	$xlabel = $line; $xlabel =~ s/Abscissa:\s+//;
+      } elsif ($line =~ /Ordinate:/) {
+	$ylabel = $line; $ylabel =~ s/Ordinate:\s+//;
+	if ($ylabel =~ /util/) { # utilization
+	  print GNUPLOTFILE "set yrange [0:1]\n";
+	  $squarewave=1;
+	}
+      } elsif ($line =~ /Num points:/) {
+      } else {
+	$line =~ s/[,\s]+/ /;
+	($x,$y) = split(/\s+/,$line);
+	if ($y < 1e+100) { # not undef
+	  if (($squarewave) && (abs($y-$lastvalue)>1e-6)) {
+	    $xa = $x - 1e-6;
+	    print VECTORFILEOUT "$xa $lastvalue\n";
+	  }
+	  print VECTORFILEOUT "$x $y\n";
+	  $lastvalue = $y;
+	}
+      }
+    }
+
+    print GNUPLOTFILE "set xlabel \"$xlabel\"\n";
+    print GNUPLOTFILE "set ylabel \"$ylabel\"\n";
+    print GNUPLOTFILE "set term postscript;set output \"$graphsFileDir/rate_output.ps\"\n";
+#    print GNUPLOTFILE "plot \'$fileout\' u 1:2 w line\n";
+    print GNUPLOTFILE "plot \'$fileout\' u 1:2 w steps\n";
+#    print GNUPLOTFILE "plot \'$fileout\' u 1:2 t \"\" w linesp\n";
+    print GNUPLOTFILE "set term png;set output \"$graphsFileDir/rate_output.png\"\n";
+    print GNUPLOTFILE "plot \'$fileout\' u 1:2 w steps\n";
+    #print GNUPLOTFILE "pause -1 \"Press a key !\"\n";
+    print GNUPLOTFILE "set autoscale x;set autoscale y\n";# zuruecksetzen
+    print GNUPLOTFILE "\n";# Leerzeile
+
+    close(VECTORFILEOUT);
+  } else {
+    die "no relevant data in $file";
+  }
+  close($file);
+}
+close(GNUPLOTFILE);
+
+#print "1) call gnuplot\n";
+#print "2) type \"load \'$gnuplotfile\'\" at the prompt\n";
+
+#system("gnuplot $gnuplotfile"); # subprocess
+exec("gnuplot $graphsFileDir/$gnuplotfile"); # no more script execution after that
+

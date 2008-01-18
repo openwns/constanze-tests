@@ -1,0 +1,5 @@
+### This script shows gnuplot results
+
+gnuplot plotvectors.gnuplot
+
+### end

@@ -1,0 +1,4 @@
+id, name
+./referenceOutput_constanzeTestsMAC.py, REFERENCE
+./output_dbg_constanzeTestsMAC.py, DBG
+./output_opt_constanzeTestsMAC.py, OPT

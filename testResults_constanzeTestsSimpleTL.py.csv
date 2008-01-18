@@ -1,0 +1,4 @@
+id, name
+./referenceOutput_constanzeTestsSimpleTL.py, REFERENCE
+./output_dbg_constanzeTestsSimpleTL.py, DBG
+./output_opt_constanzeTestsSimpleTL.py, OPT

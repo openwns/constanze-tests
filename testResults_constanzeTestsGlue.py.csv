@@ -1,0 +1,4 @@
+id, name
+./referenceOutput_constanzeTestsGlue.py, REFERENCE
+./output_dbg_constanzeTestsGlue.py, DBG
+./output_opt_constanzeTestsGlue.py, OPT
