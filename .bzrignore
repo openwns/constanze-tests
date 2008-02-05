@@ -1,2 +1,7 @@
 .arch-ids
 {arch}
+output
+output_*
+stderr.log
+stdout.log
+*.junk
