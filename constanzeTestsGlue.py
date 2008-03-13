@@ -207,6 +207,10 @@ WNS.modules.constanze.probes.getSubTree('traffic.endToEnd.window.incoming.bitThr
 WNS.modules.constanze.probes.getSubTree('traffic.endToEnd.window.incoming.packetThroughput').getBottom()[0].statEval.maxXValue = 2* throughputPerStation/meanPacketSize
 WNS.modules.constanze.probes.getSubTree('traffic.endToEnd.packet.incoming.delay').getBottom()[0].statEval.maxXValue = 0.0001
 WNS.modules.constanze.probes.getSubTree('traffic.endToEnd.packet.incoming.delay').getBottom()[0].statEval.resolution = 1000
+### Disable IP and Constanze probes with this:
+#for (k,v) in simulation.modules.ip.probes.items():
+#    v.ignore = True
+#simulation.modules.constanze.probes.clear()
 
 def myPostProcessing(theWNSInstance):
         print "WNS.outputDir=",theWNSInstance.outputDir
