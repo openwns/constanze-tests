@@ -15,10 +15,12 @@ import wns.distribution.CDFTables
 
 import constanze.Constanze
 import constanze.Node
+import constanze.evaluation.default
 
 import ip.Component
 
 import ip
+import ip.evaluation.default
 import ip.AddressResolver
 from ip.VirtualARP import VirtualARPServer
 from ip.VirtualDHCP import VirtualDHCPServer
@@ -29,6 +31,7 @@ import glue.support.Configuration
 import copper.Copper
 
 import speetcl.probes.StatEval
+from openwns.evaluation import *
 
 # create an instance of the WNS configuration
 # The variable must be called WNS!!!!
@@ -201,17 +204,27 @@ wns.Logger.globalRegistry.setAttribute("CONSTANZE", "level",  2) # 2=normal, 3=v
 
 WNS.probesWriteInterval = 30 # in seconds realtime
 
-# ~/src/intranet2/WNS--main--3.0/tests/constanzeTestsGlue: ../../framework/libwns--main--3.0/tools/pytree -p ../../sandbox/dbg/lib/PyConfig/ wns.py|more
-WNS.modules.ip.probes['ip.endToEnd.window.incoming.bitThroughput'].sortingCriteria[0].statEvalSettings[0] = speetcl.probes.StatEval.LogEval()
-WNS.modules.constanze.probes.getSubTree('traffic.endToEnd.window.incoming.bitThroughput').getBottom()[0].statEval.maxXValue = 2* throughputPerStation
-WNS.modules.constanze.probes.getSubTree('traffic.endToEnd.window.incoming.packetThroughput').getBottom()[0].statEval.maxXValue = 2* throughputPerStation/meanPacketSize
-WNS.modules.constanze.probes.getSubTree('traffic.endToEnd.packet.incoming.delay').getBottom()[0].statEval.maxXValue = 0.0001
-WNS.modules.constanze.probes.getSubTree('traffic.endToEnd.packet.incoming.delay').getBottom()[0].statEval.resolution = 1000
-### Disable IP and Constanze probes with this:
-#for (k,v) in simulation.modules.ip.probes.items():
-#    v.ignore = True
-#simulation.modules.constanze.probes.clear()
+constanze.evaluation.default.installEvaluation(WNS,
+                                               maxPacketDelay = 0.0001,
+                                               maxPacketSize = 16000,
+                                               maxBitThroughput = 2* throughputPerStation,
+                                               maxPacketThroughput = 2 * throughputPerStation/meanPacketSize,
+                                               delayResolution = 1000,
+                                               sizeResolution = 2000,
+                                               throughputResolution = 10000)
 
+ip.evaluation.default.installEvaluation(WNS,
+                                        maxPacketDelay = 0.5,     # s
+                                        maxPacketSize = 2000*8,   # Bit
+                                        maxBitThroughput = 10E6,  # Bit/s
+                                        maxPacketThroughput = 1E6 # Packets/s
+                                        )
+
+WNS.probeBusRegistry.removeMeasurementSourceNode('ip.endToEnd.window.incoming.bitThroughput')
+node = openwns.evaluation.createSourceNode(WNS, 'ip.endToEnd.window.incoming.bitThroughput')
+node.appendChildren(TimeSeries())
+
+# Postprocessing
 def myPostProcessing(theWNSInstance):
         print "WNS.outputDir=",theWNSInstance.outputDir
         graphdir = "graphs.junk"
@@ -227,7 +240,7 @@ WNS.addPostProcessing(myPostProcessing)
 ### postprocessing is specified in systemTest.py
 
 # result Throughput=f(t) is in:
-# output/IP_windowedEndToEndIncomingBitThroughput_SC1_Log.log.dat
+# output/IP_windowedEndToEndIncomingBitThroughput_Log.log.dat
 
 # use this script to get a Gnuplot script and table:
 # ./plot_rate_table

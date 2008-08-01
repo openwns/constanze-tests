@@ -61,7 +61,7 @@ testSuite.addTest(testSuite1)
 testSuite.addTest(testSuite2)
 testSuite.addTest(testSuite3)
 
-someExpectation = pywns.WNSUnit.Expectation("ip.endToEnd.packet.incoming.delay_SC1_PDF.dat",
+someExpectation = pywns.WNSUnit.Expectation("ip.endToEnd.packet.incoming.delay_PDF.dat",
                                       ["probe.trials > 20000","probe.trials < 50000"],
                                       "dbg")
 testSuite1.addTest(someExpectation)

@@ -4,13 +4,12 @@ import wns
 
 # import other modules to be loaded
 from speetcl.probes import ProbeModding
-#import applications
 import simpleTL.Component
 import wns.Distribution
 import wns.distribution.CDFTables
 import constanze.Constanze
 import constanze.Node
-#import wns.Distribution
+import constanze.evaluation.default
 
 # create an instance of the WNS configuration
 # The variable must be called WNS!!!!
@@ -18,10 +17,6 @@ WNS = wns.WNS.WNS()
 WNS.outputStrategy = wns.WNS.OutputStrategy.DELETE
 WNS.maxSimTime = 1.0
 WNS.fastShutdown = False
-
-# Activate all probes
-#for (k,v) in appls.probes.items():
-#    ProbeModding.doNotIgnore(v)
 
 numberOfClients = 1
 numberOfServers = 1
@@ -150,6 +145,15 @@ for i in xrange(numberOfClients):
             node.load.addTraffic(udpBinding, traffic)
         # for
     WNS.nodes.append(node)
+
+constanze.evaluation.default.installEvaluation(WNS,
+                                               maxPacketDelay = 0.0001,
+                                               maxPacketSize = 16000,
+                                               maxBitThroughput = 2* throughputPerStation,
+                                               maxPacketThroughput = 2 * throughputPerStation/meanPacketSize,
+                                               delayResolution = 1000,
+                                               sizeResolution = 2000,
+                                               throughputResolution = 10000)
 
 #print "WNS.outputDir=",WNS.outputDir
 #graphdir = "graphs.junk"

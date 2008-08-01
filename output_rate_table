@@ -4,8 +4,8 @@
 #
 # gives out the Rate=f(t) probe output for the singe traffic used here
 #
-#$inputfilename = "./output/IP_windowedEndToEndIncomingBitThroughput_SC1_Log.log.dat";
-#$inputfilename = "./output/ip.endToEnd.window.incoming.bitThroughput_SC1_Log.log.dat";
+#$inputfilename = "./output/IP_windowedEndToEndIncomingBitThroughput_Log.log.dat";
+#$inputfilename = "./output/ip.endToEnd.window.incoming.bitThroughput_Log.log.dat";
 
 $outputDir = "./output"; # default
 $outputDirFile = "./outputDir.junk"; # see constanzeTestsGlue.py
@@ -18,7 +18,7 @@ if ((-r $outputDirFile) && (open(ODF, $outputDirFile))) {
 if (! -d $outputDir) { print stderr "cannot access outputDir=\"$outputDir\"\n"; }
 # ^ currenty $outputDir returns "output" always, although it is elsewhere.
 # workaround:
-$inputfilename = "$outputDir/ip.endToEnd.window.incoming.bitThroughput_SC1_Log.log.dat";
+$inputfilename = "$outputDir/ip.endToEnd.window.incoming.bitThroughput_Log.log.dat";
 if ((! -d $outputDir) || (! -r $inputfilename)) {
   if (-d "output_dbg_constanzeTestsGlue.py") {
 	$outputDir="output_dbg_constanzeTestsGlue.py";
@@ -26,7 +26,7 @@ if ((! -d $outputDir) || (! -r $inputfilename)) {
 	$outputDir="output_opt_constanzeTestsGlue.py";
   }
 }
-$inputfilename = "$outputDir/ip.endToEnd.window.incoming.bitThroughput_SC1_Log.log.dat";
+$inputfilename = "$outputDir/ip.endToEnd.window.incoming.bitThroughput_Log.log.dat";
 open(IF,$inputfilename) || die "cannot open input file \"$inputfilename\"";
 #print stderr "processing $inputfilename\n";
 
