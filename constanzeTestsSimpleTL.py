@@ -3,7 +3,6 @@
 import wns
 
 # import other modules to be loaded
-from speetcl.probes import ProbeModding
 import simpleTL.Component
 import wns.Distribution
 import wns.distribution.CDFTables

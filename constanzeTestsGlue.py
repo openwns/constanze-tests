@@ -30,7 +30,6 @@ import glue.support.Configuration
 
 import copper.Copper
 
-import speetcl.probes.StatEval
 from openwns.evaluation import *
 
 # create an instance of the WNS configuration
@@ -244,6 +243,3 @@ WNS.addPostProcessing(myPostProcessing)
 
 # use this script to get a Gnuplot script and table:
 # ./plot_rate_table
-
-# HOWTO write a probe: see
-# ~/src/intranet2/WNS--main--3.0/framework/speetcl--main--6.4/src/probe/tests/ProbeTest.cpp
