@@ -6,6 +6,7 @@
 #
 #
 import os
+import commands
 
 import wns.WNS
 import wns.EventScheduler
@@ -99,7 +100,7 @@ for i in xrange(numberOfStations):
         startTime = 0.02 # [s]
         #duration = 0.0 # [s], 0.0 means forever
         startindex = 0 # change to one of [0..10] to see other traffic first
-        trafficVariants = 12
+        trafficVariants = 13
         phaseDuration = WNS.maxSimTime / trafficVariants
         #phaseDuration = 1.0 # [s]. Be sure that WNS.maxSimTime is long enough
         duration = phaseDuration - startTime
@@ -161,6 +162,11 @@ for i in xrange(numberOfStations):
                 #mmppParams = constanze.Constanze.MMPPSelfSimilar()
                 #traffic = constanze.Constanze.MMPP(mmppParams, targetRate=throughputPerStation, offset = startTime, duration=duration, parentLogger = logger)
                 #traffic.logger.level = 3
+            elif ( trafficindex == 12 ):
+                numberOfChains = throughputPerStation / 12000 # 12.2 kbit/s per VoIP stream
+                ### the sum rate is approx 50% of throughputPerStation due to the voice activity factor of 50%
+                print "VoIP.numberOfChains =",numberOfChains
+                traffic = constanze.Constanze.VoIP(numberOfChains=numberOfChains, offset = startTime, duration=duration, parentLogger = logger)
             else:
                 assert "invalid traffic choice"
             startTime += phaseDuration # next traffic after some time
@@ -229,9 +235,11 @@ def myPostProcessing(theWNSInstance):
         graphdir = "graphs.junk"
         if (not os.access(graphdir, os.F_OK)):
             os.mkdir(graphdir)
-        outputDirFile  = file('./outputDir.junk','w');
+        outputDirFile = file('./outputDir.junk','w');
         outputDirFile.write(theWNSInstance.outputDir);
-        outputDirFile.close()# ^ needed for postprocessing with ./makeRateTableGraphs and ./output_rate_table
+        outputDirFile.close() # ^ needed for postprocessing with ./makeRateTableGraphs and ./output_rate_table
+        # call ./makeRateTableGraphs
+        # result = commands.getstatusoutput('./makeRateTableGraphs')
         return True
 
 WNS.addPostProcessing(myPostProcessing)

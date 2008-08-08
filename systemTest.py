@@ -66,7 +66,7 @@ someExpectation = pywns.WNSUnit.Expectation("ip.endToEnd.packet.incoming.delay_P
                                       "dbg")
 testSuite1.addTest(someExpectation)
 
-# see ../../../framework/PyWNS--main--1.0/pywns/WNSUnit.py 
+# see ../../../framework/PyWNS--main--1.0/pywns/WNSUnit.py
 #somePostProcessing = pywns.WNSUnit.ExternalProgram(dirname = ".", command = "./output_rate_table", description = "PostProcessing with GnuPlot", includeStdOut = True)
 # this produces a *.ps and *.png file with results:
 somePostProcessing = pywns.WNSUnit.ExternalProgram(dirname = ".", command = "./makeRateTableGraphs", description = "PostProcessing with GnuPlot", includeStdOut = True)
