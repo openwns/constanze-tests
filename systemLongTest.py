@@ -38,9 +38,9 @@ testSuite.addTest(testSuite1)
 # see ../../../framework/PyWNS--main--1.0/pywns/WNSUnit.py 
 #somePostProcessing = pywns.WNSUnit.ExternalProgram(dirname = ".", command = "./output_rate_table", description = "PostProcessing with GnuPlot", includeStdOut = True)
 # this produces a *.ps and *.png file with results:
-somePostProcessing = pywns.WNSUnit.ExternalProgram(dirname = ".", command = "./makeRateTableGraphs", description = "PostProcessing with GnuPlot", includeStdOut = True)
+#somePostProcessing = pywns.WNSUnit.ExternalProgram(dirname = ".", command = "./makeRateTableGraphs", description = "PostProcessing with GnuPlot", includeStdOut = True)
 # only constanzeTestsGlue produces the right probes for postprocessing
-testSuite1.addTest(somePostProcessing)
+#testSuite1.addTest(somePostProcessing)
 # ^ if this command fails (exitcode>0), the test fails, showing that the tool chain does no longer work.
 #print "WNS.outputDir=",WNS.outputDir
 

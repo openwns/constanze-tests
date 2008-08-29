@@ -219,16 +219,16 @@ WNS.probeBusRegistry.removeMeasurementSourceNode('ip.endToEnd.window.incoming.bi
 node = openwns.evaluation.createSourceNode(WNS, 'ip.endToEnd.window.incoming.bitThroughput')
 node.appendChildren(TimeSeries())
 
-def myPostProcessing(theWNSInstance):
-        graphdir = "graphs.junk"
-        if (not os.access(graphdir, os.F_OK)):
-            os.mkdir(graphdir)
-        outputDirFile  = file('./outputDir.junk','w');
-        outputDirFile.write(theWNSInstance.outputDir);
-        outputDirFile.close()# ^ needed for postprocessing with ./makeRateTableGraphs and ./output_rate_table
-        return True
-
-WNS.addPostProcessing(myPostProcessing)
+#def myPostProcessing(theWNSInstance):
+#        graphdir = "graphs.junk"
+#        if (not os.access(graphdir, os.F_OK)):
+#            os.mkdir(graphdir)
+#        outputDirFile  = file('./outputDir.junk','w');
+#        outputDirFile.write(theWNSInstance.outputDir);
+#        outputDirFile.close()# ^ needed for postprocessing with ./makeRateTableGraphs and ./output_rate_table
+#        return True
+#
+#WNS.addPostProcessing(myPostProcessing)
 
 # result Throughput=f(t) is in:
 # output/IP_windowedEndToEndIncomingBitThroughput_SC1_Log.log.dat
