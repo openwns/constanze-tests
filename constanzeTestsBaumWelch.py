@@ -11,7 +11,7 @@ import wns.WNS
 import wns.EventScheduler
 import wns.Node
 import wns.Distribution
-import wns.distribution.CDFTables
+import constanze.distribution.CDFTables
 
 import constanze.Constanze
 import constanze.Node

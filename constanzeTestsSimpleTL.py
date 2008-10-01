@@ -1,11 +1,12 @@
 ### constanzeTestsSimpleTL
 # Constanze over UDP and SimpleTL
 import wns
+import wns.WNS
 
 # import other modules to be loaded
 import simpleTL.Component
 import wns.Distribution
-import wns.distribution.CDFTables
+import constanze.distribution.CDFTables
 import constanze.Constanze
 import constanze.Node
 import constanze.evaluation.default
@@ -91,7 +92,7 @@ for i in xrange(numberOfClients):
             elif ( trafficindex == 3 ):
                 IPmeanPacketSize = 2056.84 # Bits
                 iatDistribution = wns.Distribution.NegExp(IPmeanPacketSize / throughputPerStation) # arg is mean interarrival time [s]
-                packetSizeDistribution = wns.distribution.CDFTables.IPPacketSizeDataTraffic()
+                packetSizeDistribution = constanze.distribution.CDFTables.IPPacketSizeDataTraffic()
                 traffic = constanze.Constanze.ABR(iatDistribution, packetSizeDistribution, offset = startTime, duration=duration, parentLogger = logger)
             elif ( trafficindex == 4 ):
                 mmppParams = constanze.Constanze.MMPPparamsFromFile("mmpp_example.gdf")

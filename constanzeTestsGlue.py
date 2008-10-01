@@ -12,11 +12,11 @@ import wns.WNS
 import wns.EventScheduler
 import wns.Node
 import wns.Distribution
-import wns.distribution.CDFTables
 
 import constanze.Constanze
 import constanze.Node
 import constanze.evaluation.default
+import constanze.distribution.CDFTables
 
 import ip.Component
 
@@ -118,7 +118,7 @@ for i in xrange(numberOfStations):
             elif ( trafficindex == 3 ):
                 IPmeanPacketSize = 2056.84 # Bits
                 iatDistribution = wns.Distribution.NegExp(IPmeanPacketSize / throughputPerStation) # arg is mean interarrival time [s]
-                packetSizeDistribution = wns.distribution.CDFTables.IPPacketSizeDataTraffic()
+                packetSizeDistribution = constanze.distribution.CDFTables.IPPacketSizeDataTraffic()
                 traffic = constanze.Constanze.ABR(iatDistribution, packetSizeDistribution, offset = startTime, duration=duration, parentLogger = logger)
             elif ( trafficindex == 4 ):
                 mmppParams = constanze.Constanze.MMPPparamsFromFile("mmpp_example.gdf")
