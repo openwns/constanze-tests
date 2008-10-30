@@ -13,7 +13,7 @@ sys.path.append(os.path.join('..', '..', '..', 'sandbox', 'default', 'lib', 'pyt
 import pywns.WNSUnit
 
 testSuite1 = pywns.WNSUnit.ProbesTestSuite(sandboxPath = os.path.join('..', '..', '..', 'sandbox'),
-                                    executeable = "wns-core",
+                                    
                                     configFile = 'constanzeTestsGlue.py',
                                     shortDescription = 'All kinds of Constanze traffic sent over Copper, Glue, IP',
 				    #runSimulations = False, # no wns-core, just probes and postprocessing
@@ -23,7 +23,7 @@ testSuite1 = pywns.WNSUnit.ProbesTestSuite(sandboxPath = os.path.join('..', '..'
                                     disabledReason = "")
 
 testSuite2 = pywns.WNSUnit.ProbesTestSuite(sandboxPath = os.path.join('..', '..', '..', 'sandbox'),
-                                    executeable = "wns-core",
+                                    
                                     configFile = 'constanzeTestsSimpleTL.py',
                                     shortDescription = 'All kinds of Constanze traffic sent using SimpleTL with UDP/IP',
 				    #runSimulations = False,
@@ -33,7 +33,7 @@ testSuite2 = pywns.WNSUnit.ProbesTestSuite(sandboxPath = os.path.join('..', '..'
                                     disabledReason = "")
 
 testSuite3 = pywns.WNSUnit.ProbesTestSuite(sandboxPath = os.path.join('..', '..', '..', 'sandbox'),
-                                    executeable = "wns-core",
+                                    
                                     configFile = 'constanzeTestsMAC.py',
                                     shortDescription = 'Constanze above Layer2 (Glue) without IP',
 				    #runSimulations = False,
@@ -43,7 +43,7 @@ testSuite3 = pywns.WNSUnit.ProbesTestSuite(sandboxPath = os.path.join('..', '..'
                                     disabledReason = "requires work")
 
 testSuite4 = pywns.WNSUnit.ProbesTestSuite(sandboxPath = os.path.join('..', '..', '..', 'sandbox'),
-                                    executeable = "wns-core",
+                                    
                                     configFile = 'constanzeTestsTCP.py',
                                     shortDescription = 'Constanze above TCP/IP',
 				    #runSimulations = False,

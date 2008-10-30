@@ -14,7 +14,7 @@ import pywns.WNSUnit
 
 # start manually with: cd /tests/system/Constanze-Tests--main--1.0; ./fast-wns-core -f constanzeTestsGlueLong.py
 testSuite1 = pywns.WNSUnit.ProbesTestSuite(sandboxPath = os.path.join('..', '..', '..', 'sandbox'),
-                                    executeable = "wns-core",
+                                    
                                     configFile = 'constanzeTestsGlueLong.py',
                                     shortDescription = 'All kinds of Constanze traffic sent over Copper, Glue, IP',
 				    #runSimulations = False, # no wns-core, just probes and postprocessing
