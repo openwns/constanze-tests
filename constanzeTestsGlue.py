@@ -14,7 +14,8 @@ import wns.Node
 import wns.Distribution
 
 import constanze.Constanze
-import constanze.Node
+import constanze.node # openwns part
+import constanze.Node # addon part
 import constanze.evaluation.default
 import constanze.distribution.CDFTables
 
@@ -177,7 +178,7 @@ for i in xrange(numberOfStations):
     # only node1 should listen (to traffic):
     if ( i == 0 ):
         ipListenerBinding = constanze.Node.IPListenerBinding(WNS.nodes[i-1].nl.domainName, logger)
-        listener = constanze.Node.Listener(WNS.nodes[i-1].nl.domainName + ".listener", logger, probeWindow=timeWindow)
+        listener = constanze.node.Listener(WNS.nodes[i-1].nl.domainName + ".listener", logger, probeWindow=timeWindow)
         WNS.nodes[i-1].load.addListener(ipListenerBinding, listener)
 
 
