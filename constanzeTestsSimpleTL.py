@@ -63,7 +63,7 @@ for i in xrange(numberOfServers):
     node = ServerNode(i)
     logger = node.logger
     udpListenerBinding = constanze.Node.UDPListenerBinding(777, logger)
-    udpListenerBinding.udpService = "udp.connectionService"
+    udpListenerBinding.udpService = node.tl.udpServiceName
     listener = constanze.Node.Listener("listener",logger);
     node.load.addListener(udpListenerBinding, listener)
     WNS.nodes.append(node)
@@ -143,7 +143,7 @@ for i in xrange(numberOfClients):
             #ipBinding = constanze.Node.IPBinding(WNS.nodes[i].nl.address)
             #ipBinding = constanze.Node.IPBinding(node.tl.IPAddress)
             udpBinding = constanze.Node.UDPBinding(node.tl.domainName, serverNode.tl.domainName, 777, openwns.qos.bestEffortQosClass, logger)
-	    udpBinding.udpService = "udp.connectionService"
+	    udpBinding.udpService = node.tl.udpServiceName
             #WNS.nodes[i-1].load.addTraffic(ipBinding, cbr) # from glueTests
             node.load.addTraffic(udpBinding, traffic)
         # for
