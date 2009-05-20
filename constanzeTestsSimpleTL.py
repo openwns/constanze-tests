@@ -142,7 +142,7 @@ for i in xrange(numberOfClients):
             # Node.py :: IPBinding(_destinationIP)
             #ipBinding = constanze.Node.IPBinding(WNS.nodes[i].nl.address)
             #ipBinding = constanze.Node.IPBinding(node.tl.IPAddress)
-            udpBinding = constanze.Node.UDPBinding(node.tl.domainName, serverNode.tl.domainName, 777, openwns.qos.bestEffortQosClass, logger)
+            udpBinding = constanze.Node.UDPBinding(node.tl.domainName, serverNode.tl.domainName, 777, openwns.qos.backgroundQosClass, logger)
 	    udpBinding.udpService = node.tl.udpServiceName
             #WNS.nodes[i-1].load.addTraffic(ipBinding, cbr) # from glueTests
             node.load.addTraffic(udpBinding, traffic)
