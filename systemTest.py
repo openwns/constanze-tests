@@ -39,8 +39,8 @@ testSuite3 = pywns.WNSUnit.ProbesTestSuite(sandboxPath = os.path.join('..', '..'
 				    #runSimulations = False,
 		                    #readProbes = True, # needed if "Expectation" is used below
                                     requireReferenceOutput = False,
-                                    disabled = True,
-                                    disabledReason = "requires work")
+                                    disabled = False,
+                                    disabledReason = "")
 
 testSuite4 = pywns.WNSUnit.ProbesTestSuite(sandboxPath = os.path.join('..', '..', '..', 'sandbox'),
                                     
@@ -60,6 +60,7 @@ testSuite = pywns.WNSUnit.TestSuite()
 testSuite.addTest(testSuite1)
 testSuite.addTest(testSuite2)
 testSuite.addTest(testSuite3)
+testSuite.addTest(testSuite4)
 
 someExpectation = pywns.WNSUnit.Expectation("ip.endToEnd.packet.incoming.delay_PDF.dat",
                                       ["probe.trials > 20000","probe.trials < 50000"],

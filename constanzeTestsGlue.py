@@ -8,14 +8,13 @@
 import os
 import commands
 
-import wns.WNS
-import wns.EventScheduler
-import wns.Node
-import wns.Distribution
+import openwns
+import openwns.logger
+import openwns.node
+import openwns.distribution
 
-import constanze.Constanze
+import constanze.traffic
 import constanze.node # openwns part
-import constanze.Node # addon part
 import constanze.evaluation.default
 import constanze.distribution.CDFTables
 
@@ -36,8 +35,8 @@ from openwns.evaluation import *
 
 # create an instance of the WNS configuration
 # The variable must be called WNS!!!!
-WNS = wns.WNS.WNS()
-WNS.outputStrategy = wns.WNS.OutputStrategy.DELETE
+WNS = openwns.Simulator(simulationModel = openwns.node.NodeSimulationModel())
+WNS.outputStrategy = openwns.simulator.OutputStrategy.DELETE
 
 WNS.maxSimTime = 1.0 # seconds (here: some ms for each traffic type)
 
@@ -60,7 +59,7 @@ timeWindow = 0.001 # used for probes in IPv4Component
 # wanted: traffic rate over time r=f(t)
 # solution: see below (bottom)
 
-class Station(wns.Node.Node):
+class Station(openwns.node.Node):
     phy = None
     dll = None
     nl = None
@@ -70,7 +69,7 @@ class Station(wns.Node.Node):
     def __init__(self, wire, ber, speed, id):
         super(Station, self).__init__("node"+str(id))
         # create Components in a Node
-        self.logger = wns.Logger.Logger("CONST", "node"+str(id), True) # used for ConstanzeComponent
+        self.logger = openwns.logger.Logger("CONST", "node"+str(id), True) # used for ConstanzeComponent
         self.phy = copper.Copper.Transceiver(self, "phy", wire, ber, speed)
         self.dll = glue.support.Configuration.AcknowledgedModeShortCutComponent(self, "ShortCut", self.phy.dataTransmission, self.phy.notification)
         self.nl = ip.Component.IPv4Component(self, "192.168.1."+str(id+1),"station"+str(id+1)+".wns.org", probeWindow = timeWindow)
@@ -83,18 +82,18 @@ class Station(wns.Node.Node):
                        _dllDataTransmission = self.dll.unicastDataTransmission,
                        _dllNotification = self.dll.unicastNotification)
         # from ./modules/loadgen/Constanze--unstable--1.0/PyConfig/constanze/Node.py:
-        self.load = constanze.Node.ConstanzeComponent(self, "constanze", self.logger)
+        self.load = constanze.node.ConstanzeComponent(self, "constanze", self.logger)
 
 # Create Nodes and components
 for i in xrange(numberOfStations):
-    #station = Station(wire, wns.Distribution.Fixed(0.000004), speed, i)
+    #station = Station(wire, openwns.distribution.Fixed(0.000004), speed, i)
     # no packet error on the link:
-    station = Station(wire, wns.Distribution.Fixed(0.0), speed, i)
-    WNS.nodes.append(station)
+    station = Station(wire, openwns.distribution.Fixed(0.0), speed, i)
+    WNS.simulationModel.nodes.append(station)
 
 for i in xrange(numberOfStations):
-    # WNS.nodes[i-1] is specified here...
-    logger = WNS.nodes[i-1].logger
+    # WNS.simulationModel.nodes[i-1] is specified here...
+    logger = WNS.simulationModel.nodes[i-1].logger
     # only node0 should generate traffic:
     if ( i == 1 ):
         #startTime = 0.001 # [s]
@@ -108,84 +107,84 @@ for i in xrange(numberOfStations):
         for trafficindexOffset in xrange(trafficVariants):
             trafficindex = (trafficindexOffset + startindex) % trafficVariants
             if ( trafficindex == 0 ):
-                traffic = constanze.Constanze.CBR0(startTime, throughputPerStation, meanPacketSize, duration=duration, parentLogger=logger)
+                traffic = constanze.traffic.CBR0(startTime, throughputPerStation, meanPacketSize, duration=duration, parentLogger=logger)
             elif ( trafficindex == 1 ):
-                traffic = constanze.Constanze.Poisson(startTime, throughputPerStation, meanPacketSize, duration=duration, parentLogger=logger)
+                traffic = constanze.traffic.Poisson(startTime, throughputPerStation, meanPacketSize, duration=duration, parentLogger=logger)
             elif ( trafficindex == 2 ):
-                iatDistribution = wns.Distribution.Fixed(meanPacketSize / throughputPerStation) # arg is mean interarrival time [s]
-                #packetSizeDistribution = wns.Distribution.Fixed(meanPacketSize)
-                packetSizeDistribution = wns.Distribution.Uniform(2*meanPacketSize,8)
-                traffic = constanze.Constanze.ABR(iatDistribution, packetSizeDistribution, offset = startTime, duration=duration, parentLogger = logger)
+                iatDistribution = openwns.distribution.Fixed(meanPacketSize / throughputPerStation) # arg is mean interarrival time [s]
+                #packetSizeDistribution = openwns.distribution.Fixed(meanPacketSize)
+                packetSizeDistribution = openwns.distribution.Uniform(2*meanPacketSize,8)
+                traffic = constanze.traffic.ABR(iatDistribution, packetSizeDistribution, offset = startTime, duration=duration, parentLogger = logger)
             elif ( trafficindex == 3 ):
                 IPmeanPacketSize = 2056.84 # Bits
-                iatDistribution = wns.Distribution.NegExp(IPmeanPacketSize / throughputPerStation) # arg is mean interarrival time [s]
+                iatDistribution = openwns.distribution.NegExp(IPmeanPacketSize / throughputPerStation) # arg is mean interarrival time [s]
                 packetSizeDistribution = constanze.distribution.CDFTables.IPPacketSizeDataTraffic()
-                traffic = constanze.Constanze.ABR(iatDistribution, packetSizeDistribution, offset = startTime, duration=duration, parentLogger = logger)
+                traffic = constanze.traffic.ABR(iatDistribution, packetSizeDistribution, offset = startTime, duration=duration, parentLogger = logger)
             elif ( trafficindex == 4 ):
-                mmppParams = constanze.Constanze.MMPPparamsFromFile("mmpp_example.gdf")
-                traffic = constanze.Constanze.MMPP(mmppParams, numberOfChains=1, targetRate=throughputPerStation, transitionScale=0.1, offset = startTime, duration=duration, parentLogger = logger)
+                mmppParams = constanze.traffic.MMPPparamsFromFile("mmpp_example.gdf")
+                traffic = constanze.traffic.MMPP(mmppParams, numberOfChains=1, targetRate=throughputPerStation, transitionScale=0.1, offset = startTime, duration=duration, parentLogger = logger)
             elif ( trafficindex == 5 ):
-                mmppParams = constanze.Constanze.MMPPexampleONOFF()
-                traffic = constanze.Constanze.MMPP(mmppParams, targetRate=throughputPerStation, transitionScale=1.0, offset = startTime, duration=duration, parentLogger = logger)
+                mmppParams = constanze.traffic.MMPPexampleONOFF()
+                traffic = constanze.traffic.MMPP(mmppParams, targetRate=throughputPerStation, transitionScale=1.0, offset = startTime, duration=duration, parentLogger = logger)
             elif ( trafficindex == 6 ):
-                mmppParams = constanze.Constanze.MMPPMPEG2()
-                traffic = constanze.Constanze.MMPP(mmppParams, targetRate=throughputPerStation, transitionScale=5.0, offset = startTime, duration=duration, parentLogger = logger)
+                mmppParams = constanze.traffic.MMPPMPEG2()
+                traffic = constanze.traffic.MMPP(mmppParams, targetRate=throughputPerStation, transitionScale=5.0, offset = startTime, duration=duration, parentLogger = logger)
             elif ( trafficindex == 7 ):
-                mmppParams = constanze.Constanze.MMPPdata()
-                #traffic = constanze.Constanze.MMPP(mmppParams, rateScale=0.5, transitionScale=1.0, offset = startTime,duration=duration, parentLogger = logger)
-		traffic = constanze.Constanze.MMPP(mmppParams, targetRate=throughputPerStation, transitionScale=1.0, offset = startTime, duration=duration, parentLogger = logger)
+                mmppParams = constanze.traffic.MMPPdata()
+                #traffic = constanze.traffic.MMPP(mmppParams, rateScale=0.5, transitionScale=1.0, offset = startTime,duration=duration, parentLogger = logger)
+		traffic = constanze.traffic.MMPP(mmppParams, targetRate=throughputPerStation, transitionScale=1.0, offset = startTime, duration=duration, parentLogger = logger)
             elif ( trafficindex == 8 ):
                 # construct MMPP traffic manually (this is how to do it):
                 numberOfStates=2
                 matrix = ((0.0, 100.0),(100.0, 0.0))
-                iatDistribution = [ wns.Distribution.Fixed(1e-3), wns.Distribution.NegExp(100e-6) ]
-                packetSizeDistribution = [ wns.Distribution.Fixed(128), wns.Distribution.Fixed(meanPacketSize) ]
+                iatDistribution = [ openwns.distribution.Fixed(1e-3), openwns.distribution.NegExp(100e-6) ]
+                packetSizeDistribution = [ openwns.distribution.Fixed(128), openwns.distribution.Fixed(meanPacketSize) ]
                 stateList = []
                 for stateindex in xrange(numberOfStates):
-                    stateParam = constanze.Constanze.MMPPstateParams(iatDistribution[stateindex], packetSizeDistribution[stateindex])
+                    stateParam = constanze.traffic.MMPPstateParams(iatDistribution[stateindex], packetSizeDistribution[stateindex])
                     stateList.append(stateParam)
-                mmppParams = constanze.Constanze.MMPPparamsComplete(numberOfChains=1,
+                mmppParams = constanze.traffic.MMPPparamsComplete(numberOfChains=1,
                                                                     numberOfStates=numberOfStates,
                                                                     transitionMatrix=matrix,
                                                                     stateList=stateList)
-                #traffic = constanze.Constanze.MMPP(mmppParams, rateScale=1.0, transitionScale=1.0, offset = startTime, duration=duration, parentLogger = logger)
-		traffic = constanze.Constanze.MMPP(mmppParams, targetRate=throughputPerStation, transitionScale=1.0, offset = startTime, duration=duration, parentLogger = logger)
+                #traffic = constanze.traffic.MMPP(mmppParams, rateScale=1.0, transitionScale=1.0, offset = startTime, duration=duration, parentLogger = logger)
+		traffic = constanze.traffic.MMPP(mmppParams, targetRate=throughputPerStation, transitionScale=1.0, offset = startTime, duration=duration, parentLogger = logger)
             elif ( trafficindex == 9 ):
-                mmppParams = constanze.Constanze.DTMMPPexample01()
-                traffic = constanze.Constanze.DTMMPP(mmppParams, targetRate=throughputPerStation, slotTime = 1.0/10000.0, offset = startTime, duration=duration, parentLogger = logger)
+                mmppParams = constanze.traffic.DTMMPPexample01()
+                traffic = constanze.traffic.DTMMPP(mmppParams, targetRate=throughputPerStation, slotTime = 1.0/10000.0, offset = startTime, duration=duration, parentLogger = logger)
                 #traffic.logger.level = 3
             elif ( trafficindex == 10 ):
-                mmppParams = constanze.Constanze.DTMMPPMPEG2()
-                traffic = constanze.Constanze.DTMMPP(mmppParams, targetRate=throughputPerStation, slotTime = 1.0/300.0, offset = startTime, duration=duration, parentLogger = logger)
+                mmppParams = constanze.traffic.DTMMPPMPEG2()
+                traffic = constanze.traffic.DTMMPP(mmppParams, targetRate=throughputPerStation, slotTime = 1.0/300.0, offset = startTime, duration=duration, parentLogger = logger)
                 #traffic.logger.level = 3
             elif ( trafficindex == 11 ):
-                traffic = constanze.Constanze.SelfSimilar(targetRate=throughputPerStation, offset = startTime, duration=duration, parentLogger = logger)
-                #mmppParams = constanze.Constanze.MMPPSelfSimilar()
-                #traffic = constanze.Constanze.MMPP(mmppParams, targetRate=throughputPerStation, offset = startTime, duration=duration, parentLogger = logger)
+                traffic = constanze.traffic.SelfSimilar(targetRate=throughputPerStation, offset = startTime, duration=duration, parentLogger = logger)
+                #mmppParams = constanze.traffic.MMPPSelfSimilar()
+                #traffic = constanze.traffic.MMPP(mmppParams, targetRate=throughputPerStation, offset = startTime, duration=duration, parentLogger = logger)
                 #traffic.logger.level = 3
             elif ( trafficindex == 12 ):
                 numberOfChains = throughputPerStation / 12000 # 12.2 kbit/s per VoIP stream
                 ### the sum rate is approx 50% of throughputPerStation due to the voice activity factor of 50%
                 print "VoIP.numberOfChains =",numberOfChains
-                traffic = constanze.Constanze.VoIP(numberOfChains=numberOfChains, offset = startTime, duration=duration, parentLogger = logger)
+                traffic = constanze.traffic.VoIP(numberOfChains=numberOfChains, offset = startTime, duration=duration, parentLogger = logger)
             else:
                 assert "invalid traffic choice"
             startTime += phaseDuration # next traffic after some time
             # Node.py :: IPBinding(_destinationIP)
-            ipBinding = constanze.Node.IPBinding(WNS.nodes[i-1].nl.domainName, WNS.nodes[i].nl.domainName, logger) # destination ip
-            WNS.nodes[i-1].load.addTraffic(ipBinding, traffic)
+            ipBinding = constanze.node.IPBinding(WNS.simulationModel.nodes[i-1].nl.domainName, WNS.simulationModel.nodes[i].nl.domainName, logger) # destination ip
+            WNS.simulationModel.nodes[i-1].load.addTraffic(ipBinding, traffic)
         # for
     # only node1 should listen (to traffic):
     if ( i == 0 ):
-        ipListenerBinding = constanze.Node.IPListenerBinding(WNS.nodes[i-1].nl.domainName, logger)
-        listener = constanze.node.Listener(WNS.nodes[i-1].nl.domainName + ".listener", logger, probeWindow=timeWindow)
-        WNS.nodes[i-1].load.addListener(ipListenerBinding, listener)
+        ipListenerBinding = constanze.node.IPListenerBinding(WNS.simulationModel.nodes[i-1].nl.domainName, logger)
+        listener = constanze.node.Listener(WNS.simulationModel.nodes[i-1].nl.domainName + ".listener", logger, probeWindow=timeWindow)
+        WNS.simulationModel.nodes[i-1].load.addListener(ipListenerBinding, listener)
 
 
 # one Virtual ARP Zone
 varp = VirtualARPServer("vARP", "theOnlySubnet")
 
-WNS.nodes.append(varp)
+WNS.simulationModel.nodes.append(varp)
 
 vdhcp = VirtualDHCPServer("vDHCP@",
                           "theOnlySubnet",
@@ -194,19 +193,19 @@ vdhcp = VirtualDHCPServer("vDHCP@",
 
 vdns = VirtualDNSServer("vDNS", "ip.DEFAULT.GLOBAL")
 
-WNS.nodes.append(vdns)
+WNS.simulationModel.nodes.append(vdns)
 
-WNS.nodes.append(vdhcp)
+WNS.simulationModel.nodes.append(vdhcp)
 
 
 glue.support.Configuration.ShortCut.loggerEnabled = False
 glue.support.Configuration.ShortCutComponent.loggerEnabled = False
 glue.support.Configuration.AcknowledgedModeShortCutComponent.loggerEnabled = False
-wns.Logger.globalRegistry.setAttribute("all",       "enabled", False)
-wns.Logger.globalRegistry.setAttribute("CONSTANZE", "enabled", True)
-wns.Logger.globalRegistry.setAttribute("CONSTANZE", "level",  2) # 2=normal, 3=verbose
-#wns.Logger.globalRegistry.enableLoggers("GLUE", True)
-#wns.Logger.globalRegistry.setLoggerLevel("GLUE", 2)
+openwns.logger.globalRegistry.setAttribute("all",       "enabled", False)
+openwns.logger.globalRegistry.setAttribute("CONSTANZE", "enabled", True)
+openwns.logger.globalRegistry.setAttribute("CONSTANZE", "level",  2) # 2=normal, 3=verbose
+#openwns.logger.globalRegistry.enableLoggers("GLUE", True)
+#openwns.logger.globalRegistry.setLoggerLevel("GLUE", 2)
 
 WNS.probesWriteInterval = 30 # in seconds realtime
 
@@ -244,6 +243,8 @@ def myPostProcessing(theWNSInstance):
         return True
 
 WNS.addPostProcessing(myPostProcessing)
+
+openwns.setSimulator(WNS)
 
 ### postprocessing is specified in systemTest.py
 
