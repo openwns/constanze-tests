@@ -8,3 +8,4 @@ stdout.log
 graphs/*
 rate_output*
 plotvectors.gnuplot
+testResults_constanzeTestsBaumWelch.py.csv

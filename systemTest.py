@@ -52,6 +52,18 @@ testSuite4 = pywns.WNSUnit.ProbesTestSuite(sandboxPath = os.path.join('..', '..'
                                     disabled = False,
                                     disabledReason = "")
 
+
+testSuite5 = pywns.WNSUnit.ProbesTestSuite(sandboxPath = os.path.join('..', '..', '..', 'sandbox'),
+                                    
+                                    configFile = 'constanzeTestsBaumWelch.py',
+                                    shortDescription = 'Constanze testing hidden Markov',
+                    #runSimulations = False,
+                            #readProbes = True, # needed if "Expectation" is used below
+                                    requireReferenceOutput = False,
+                                    disabled = False,
+                                    disabledReason = "")
+
+
 ### This makes some nice output graphs to show what the different traffic is like:
 # /fast-wns-core -f long_run.py
 
@@ -61,6 +73,7 @@ testSuite.addTest(testSuite1)
 testSuite.addTest(testSuite2)
 testSuite.addTest(testSuite3)
 testSuite.addTest(testSuite4)
+testSuite.addTest(testSuite5)
 
 someExpectation = pywns.WNSUnit.Expectation("ip.endToEnd.packet.incoming.delay_PDF.dat",
                                       ["probe.trials > 20000","probe.trials < 50000"],
