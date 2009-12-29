@@ -46,7 +46,7 @@ numberOfStations = 2
 wire = copper.Copper.Wire("theWire") # this name appears in logger output
 
 # link speed = 1 GBit/s
-speed = 1E9
+speed = 1E7
 # Traffic load
 meanPacketSize = 500 * 8 # bits
 loadFactor = 0.1
