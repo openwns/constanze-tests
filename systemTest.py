@@ -1,4 +1,4 @@
-#! /usr/bin/env python2.4
+#! /usr/bin/env python
 
 # this is needed, so that the script can be called from everywhere
 import os
